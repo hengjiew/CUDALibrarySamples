@@ -28,33 +28,22 @@
 
 #include <vector>
 
-#include <cuda_runtime_api.h>
 #include <cublasLt.h>
+#include <cuda_runtime_api.h>
 
-#include "sample_cublasLt_LtSgemmCustomFind.h"
 #include "helpers.h"
+#include "sample_cublasLt_LtSgemmCustomFind.h"
 
 int main() {
-    TestBench<float> props(1024, 512, 4096, 2.0f, 0.0f, 1024 * 1024 * 16);
+  TestBench<__half, __half, float> props(640, 12288, 3072, 2.0f, 0.0f,
+                                         1024 * 1024 * 16);
 
-    props.run([&props] {
-        LtSgemmCustomFind(props.ltHandle,
-                        CUBLAS_OP_N,
-                        CUBLAS_OP_N,
-                        props.m,
-                        props.n,
-                        props.k,
-                        &props.alpha,
-                        props.Adev,
-                        props.m,
-                        props.Bdev,
-                        props.k,
-                        &props.beta,
-                        props.Cdev,
-                        props.m,
-                        props.workspace,
-                        props.workspaceSize);
-    });
+  props.run([&props] {
+    LtSgemmCustomFind(props.ltHandle, CUBLAS_OP_N, CUBLAS_OP_N, props.m,
+                      props.n, props.k, &props.alpha, props.Adev, props.m,
+                      props.Bdev, props.k, &props.beta, props.Cdev, props.m,
+                      props.workspace, props.workspaceSize);
+  });
 
-    return 0;
+  return 0;
 }
