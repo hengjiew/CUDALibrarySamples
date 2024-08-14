@@ -35,13 +35,17 @@
 #include "sample_cublasLt_LtSgemmCustomFind.h"
 
 int main() {
-  TestBench<__half, __half, float> props(640, 12288, 3072, 2.0f, 0.0f,
+  TestBench<__half, __half, float> props(640, 12288, 3072, 1.0f, 0.0f,
                                          1024 * 1024 * 16);
 
   props.run([&props] {
-    LtSgemmCustomFind(props.ltHandle, CUBLAS_OP_N, CUBLAS_OP_N, props.m,
-                      props.n, props.k, &props.alpha, props.Adev, props.m,
-                      props.Bdev, props.k, &props.beta, props.Cdev, props.m,
+    //LtSgemmCustomFind(props.ltHandle, CUBLAS_OP_T, CUBLAS_OP_N, props.m,
+                      //props.n, props.k, &props.alpha, props.Adev, props.k,
+                      //props.Bdev, props.k, &props.beta, props.Cdev, props.m,
+                      //props.workspace, props.workspaceSize);
+    LtSgemmCustomFind(props.ltHandle, CUBLAS_OP_T, CUBLAS_OP_N, props.n,
+                      props.m, props.k, &props.alpha, props.Bdev, props.k,
+                      props.Adev, props.k, &props.beta, props.Cdev, props.n,
                       props.workspace, props.workspaceSize);
   });
 

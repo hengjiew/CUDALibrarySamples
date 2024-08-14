@@ -128,7 +128,7 @@ static cublasStatus_t customMatmulRun(cublasLtHandle_t ltHandle,  // to get the 
                  cudaEvent_t &stopEvent) {
     cublasLtMatmulHeuristicResult_t heurResult;
     /* Looping over the Algo */
-    int repeats = 1; //kernelRepeats;
+    int repeats = kernelRepeats;
 
     cublasStatus_t algoStatus = cublasLtMatmulAlgoCheck( ltHandle,
                                                          operationDesc,
@@ -156,10 +156,10 @@ static cublasStatus_t customMatmulRun(cublasLtHandle_t ltHandle,  // to get the 
                                                               workSpace,
                                                               workSpaceSizeInBytes,
                                                               stream);
-                if (oneRunStatus != CUBLAS_STATUS_SUCCESS) {
-                    algoStatus = oneRunStatus;
-                    break;
-                }
+//                if (oneRunStatus != CUBLAS_STATUS_SUCCESS) {
+//                    algoStatus = oneRunStatus;
+//                    break;
+//                }
             }
             err1 = cudaEventRecord(stopEvent, stream);
             err2 = cudaEventSynchronize(stopEvent);
@@ -171,7 +171,7 @@ static cublasStatus_t customMatmulRun(cublasLtHandle_t ltHandle,  // to get the 
             // For the moment only add successful findings
             if (algoStatus == CUBLAS_STATUS_SUCCESS) {
                 perfResults.algo = algo;
-                perfResults.time = time;
+                perfResults.time = time / repeats;
                 perfResults.workspaceSize = heurResult.workspaceSize;
                 perfResults.wavesCount = heurResult.wavesCount;
             }
@@ -213,7 +213,7 @@ void LtSgemmCustomFind(cublasLtHandle_t ltHandle,
     #define ALGO_COMBINATIONS 100
     int AlgoCombinations = ALGO_COMBINATIONS;
     int AlgoCount = 0;
-    int kernelRepeats = 10; //number of time the CUDA kernels will be run back to back
+    int kernelRepeats = 100; //number of time the CUDA kernels will be run back to back
     customMatmulPerf_t perfResults[ALGO_COMBINATIONS];
     int nbAlgoIds = 0;
     #define ALGO_IDS 50
@@ -287,8 +287,8 @@ void LtSgemmCustomFind(cublasLtHandle_t ltHandle,
         /* Loop over the different tiles */
         for (int tileIdx = 0; tileIdx < nbTiles; tileIdx++) {
             // Find 256 x 128 tile only.
-            // if (tileA[tileIdx] != CUBLASLT_MATMUL_TILE_256x128)
-            //     continue;
+            if (tileA[tileIdx] != CUBLASLT_MATMUL_TILE_256x128)
+                 continue;
 
             /* Loop over different stages count */
             for (int stagesIdx = 0; stagesIdx < nbStages; stagesIdx++) {
